@@ -1,6 +1,8 @@
 #ifndef PIEZO_MANAGER_H
 #define PIEZO_MANAGER_H
 
+#include "config_manager.h"
+
 /**
  * @brief Sets up the piezo functionality (ADC startup).
  */
