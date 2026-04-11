@@ -1,7 +1,6 @@
 #include "piezo_manager.h"
 
 #include <stdio.h>
-#include "freertos/FreeRTOS.h"
 #include "esp_log.h"
 #include "esp_adc/adc_oneshot.h"
 
@@ -23,8 +22,11 @@ static int piezo_envelope = 0;
 int envelope_window_sizes[SENSITIVITY_LEVELS] = {16, 12, 8, 4, 2}; // Larger window size = more smoothing, less sensitivity. TODO: Make configurable
 int envelope_threshold[SENSITIVITY_LEVELS] = {200, 150, 100, 50, 25}; // Threshold for bite detection. TODO: Make configurable
 
-void setup_piezo_manager()
+static QueueHandle_t s_event_queue = NULL;
+
+void setup_piezo_manager(QueueHandle_t sensor_event_queue)
 {
+    s_event_queue = sensor_event_queue;
     adc_oneshot_unit_init_cfg_t init_config = {
         .unit_id = ADC_UNIT,
         .clk_src = ADC_RTC_CLK_SRC_DEFAULT,
@@ -66,6 +68,6 @@ static void vPiezoTask(void *pvParameters)
     }
 }
 
-void start_piezo_task() {
+void start_piezo_task(void) {
     xTaskCreate(vPiezoTask, "piezo", 4096, NULL, 1, NULL);
 }

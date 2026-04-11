@@ -1,6 +1,5 @@
 #include "sw420_manager.h"
 
-#include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
@@ -12,13 +11,18 @@
 #define SW420_PIN GPIO_NUM_14 // TODO: Make configurable
 #define SW420_SAMPLE_FREQ 10 // Hz     // TODO: Make configurable, also increase tick rate
 
+#define TAG "SW420_MANAGER"
+
 int vibration_threshold[SENSITIVITY_LEVELS] = {1, 2, 5, 8, 10}; // Number of vibrations detected in buffer to consider it a positive event. TODO: Make configurable
 static int sw420_samples[SAMPLE_BUFFER_SIZE];
 
-#define TAG "SW420_MANAGER"
 
-void setup_sw420_manager()
+static QueueHandle_t s_event_queue = NULL;
+
+void setup_sw420_manager(QueueHandle_t sensor_event_queue)
 {
+    s_event_queue = sensor_event_queue;
+    
     for (int i = 0; i < SAMPLE_BUFFER_SIZE; i++) {
         sw420_samples[i] = 0;
     }
@@ -52,7 +56,7 @@ static void xSW420Task(void *pvParameters)
     }
 }
 
-void start_sw420_task()
+void start_sw420_task(void)
 {
     xTaskCreate(xSW420Task, "SW420 Task", 4096, NULL, 1, NULL);
 }
