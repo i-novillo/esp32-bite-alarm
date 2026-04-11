@@ -5,6 +5,7 @@
 #include "esp_adc/adc_oneshot.h"
 
 #include "constants.h"
+#include "state_machine.h"
 
 #define ADC_PIN       ADC_CHANNEL_6     // Channel 6 - Check ESP32 Pinout for the GPIO Number // TODO: Make configurable
 #define ADC_UNIT      ADC_UNIT_1        // ADC1
@@ -18,7 +19,7 @@
 
 static adc_oneshot_unit_handle_t adc_handle;
 static int piezo_envelope = 0;
-
+static event_level_t s_sw_420_event_level = EVENT_NONE;
 int envelope_window_sizes[SENSITIVITY_LEVELS] = {16, 12, 8, 4, 2}; // Larger window size = more smoothing, less sensitivity. TODO: Make configurable
 int envelope_threshold[SENSITIVITY_LEVELS] = {200, 150, 100, 50, 25}; // Threshold for bite detection. TODO: Make configurable
 
@@ -49,19 +50,29 @@ static void vPiezoTask(void *pvParameters)
 {
     int piezo_sample = 0;
     TickType_t last_wake_time = xTaskGetTickCount();
-    int sample_count = 0;
    
     while (1) {
         ESP_ERROR_CHECK(adc_oneshot_read(adc_handle, ADC_PIN, &piezo_sample));
         update_envelope(piezo_sample);
 
-        // TODO: Remove this logging and replace with event triggering when envelope exceeds threshold
-        if (sample_count < 10) {
-            sample_count++;
-        } else {
-            sample_count = 0;
-            ESP_LOGI(TAG, "ADC Raw Value: %d", piezo_sample);
-            ESP_LOGI(TAG, "ADC Envelope Value: %d", piezo_envelope);
+        uint8_t threshold = envelope_threshold[config_manager_get_sensitivity()]; // TODO: Optimize so that config manager does not have to be polled every execution
+
+        if (piezo_envelope >= threshold + 30) {
+            if (s_sw_420_event_level != EVENT_HIGH) {
+                sensor_event_type_t evt = SENSOR_EVENT_PIEZO_TRIGGER_HIGH;
+                xQueueSend(s_event_queue, &evt, 0);
+                s_sw_420_event_level = EVENT_HIGH;
+            }
+        }
+        else if (piezo_envelope >= threshold) {
+            if (s_sw_420_event_level == EVENT_NONE) {
+                sensor_event_type_t evt = SENSOR_EVENT_PIEZO_TRIGGER;
+                xQueueSend(s_event_queue, &evt, 0);
+                s_sw_420_event_level = EVENT_LOW;
+            }
+        }
+        else if (piezo_envelope < threshold / 2) {
+            s_sw_420_event_level = EVENT_NONE;
         }
 
         vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(MS / PIEZO_SAMPLE_FREQ));

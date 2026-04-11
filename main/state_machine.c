@@ -6,16 +6,16 @@
 #define TAG "STATE_MACHINE"
 
 #define STATE_READY_QUEUE_TIMEOUT_MS 1000 // TODO: Make configurable and adjust through sensitivity
-#define STATE_POSSIBLE_QUEUE_TIMEOUT_MS 100 // TODO: Make configurable and adjust through sensitivity
-#define STATE_ALARMING_QUEUE_TIMEOUT_MS 200 // TODO: Make configurable and adjust through sensitivity
+#define STATE_POSSIBLE_QUEUE_TIMEOUT_MS 500 // TODO: Make configurable and adjust through sensitivity
+#define STATE_ALARMING_QUEUE_TIMEOUT_MS 600 // TODO: Make configurable and adjust through sensitivity
 
 #define SCORE_DECAY 2 // TODO: Make configurable and adjust through sensitivity
 #define START_TIMEOUT_SCORE_THRESHOLD 10 // TODO: Make configurable and adjust through sensitivity
 #define START_ALARMING_SCORE_THRESHOLD 20 // TODO: Make configurable and adjust through sensitivity
 #define END_ALARMING_SCORE_THRESHOLD 14 // TODO: Make configurable and adjust through sensitivity
-#define MAX_BITE_SCORE 100 // TODO: Make configurable and adjust through sensitivity
+#define MAX_BITE_SCORE 50 // TODO: Make configurable and adjust through sensitivity
 
-#define TIMEOUT_DURATION_MS 500 // TODO: Make configurable and adjust through sensitivity
+#define TIMEOUT_DURATION_MS 1000 // TODO: Make configurable and adjust through sensitivity
 
 /*
     SENSOR_EVENT_PIEZO_TRIGGER: 2 points
@@ -23,7 +23,7 @@
     SENSOR_EVENT_SW420_TRIGGER: 1 point
     SENSOR_EVENT_SW420_TRIGGER_HIGH: 3 points
 */
-int event_bite_score[4] = {2, 4, 1, 3}; // TODO: Make configurable and adjust through sensitivity
+int event_bite_score[4] = {4, 8, 2, 6}; // TODO: Make configurable and adjust through sensitivity
 
 typedef enum {
     STATE_IDLE,
@@ -76,6 +76,7 @@ static void process_sensor_event(sensor_event_type_t event)
 
         case STATE_TIMEOUT:
                 vTaskDelay(pdMS_TO_TICKS(TIMEOUT_DURATION_MS));
+                xQueueReset(s_event_queue);
                 current_state = STATE_READY;
                 queue_timeout = pdMS_TO_TICKS(STATE_READY_QUEUE_TIMEOUT_MS);
             break;
@@ -103,9 +104,10 @@ static void process_sensor_event_timeout()
             break;  
 
         case STATE_CONFIRMED_BITE:
-            // Transition state. No action is performed at the moment, kept in case any pre-alarm action is needed in the future.
             current_state = STATE_ALARMING;
             queue_timeout = pdMS_TO_TICKS(STATE_ALARMING_QUEUE_TIMEOUT_MS);
+            alarm_active = true;
+            // TODO: SEND START ALARM TO BUZZER
             break;
 
         case STATE_ALARMING:
@@ -120,6 +122,7 @@ static void process_sensor_event_timeout()
             vTaskDelay(pdMS_TO_TICKS(TIMEOUT_DURATION_MS));
             current_state = STATE_READY;
             queue_timeout = pdMS_TO_TICKS(STATE_READY_QUEUE_TIMEOUT_MS);
+            xQueueReset(s_event_queue);
             break;
 
         default:
