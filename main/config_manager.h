@@ -3,6 +3,8 @@
 
 #define SENSITIVITY_LEVELS 5
 
+//TODO: Add comments
+
 typedef enum {
     SENS_LEVEL_0 = 0,
     SENS_LEVEL_1 = 1,
