@@ -7,8 +7,9 @@
 
 /**
  * @brief Sets up the piezo functionality (ADC startup).
+ * @param sensor_event_queue Queue to send detected piezo events to.
  */
-void setup_piezo_manager(QueueHandle_t queue);
+void setup_piezo_manager(QueueHandle_t sensor_event_queue);
 
 /**
  * @brief Starts the piezo task.

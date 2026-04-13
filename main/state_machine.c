@@ -18,10 +18,10 @@
 #define TIMEOUT_DURATION_MS 1000 // TODO: Make configurable and adjust through sensitivity
 
 /*
-    SENSOR_EVENT_PIEZO_TRIGGER: 2 points
-    SENSOR_EVENT_PIEZO_TRIGGER_HIGH: 4 points
-    SENSOR_EVENT_SW420_TRIGGER: 1 point
-    SENSOR_EVENT_SW420_TRIGGER_HIGH: 3 points
+    SENSOR_EVENT_PIEZO_TRIGGER: 4 points
+    SENSOR_EVENT_PIEZO_TRIGGER_HIGH: 8 points
+    SENSOR_EVENT_SW420_TRIGGER: 2 points
+    SENSOR_EVENT_SW420_TRIGGER_HIGH: 6 points
 */
 int event_bite_score[4] = {4, 8, 2, 6}; // TODO: Make configurable and adjust through sensitivity
 

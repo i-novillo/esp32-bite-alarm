@@ -30,7 +30,7 @@ void setup_sw420_manager(QueueHandle_t sensor_event_queue)
     }
 
     gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << SW420_PIN),   // Select GPIO 4
+        .pin_bit_mask = (1ULL << SW420_PIN),    // Select GPIO 4
         .mode = GPIO_MODE_INPUT,                // Set as input
         .pull_up_en = GPIO_PULLUP_ENABLE,       // Enable internal pull-up
         .pull_down_en = GPIO_PULLDOWN_DISABLE,  // Disable pull-down
