@@ -3,7 +3,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-#include "config_manager.h"
+#include "hmi_manager.h"
 
 /**
  * @brief Sets up the piezo functionality (ADC startup).
