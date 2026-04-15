@@ -20,8 +20,8 @@
 static adc_oneshot_unit_handle_t adc_handle;
 static int piezo_envelope = 0;
 static event_level_t s_sw_420_event_level = EVENT_NONE;
-int envelope_window_sizes[SENSITIVITY_LEVELS] = {16, 12, 8, 4, 2}; // Larger window size = more smoothing, less sensitivity. TODO: Make configurable
-int envelope_threshold[SENSITIVITY_LEVELS] = {200, 150, 100, 50, 25}; // Threshold for bite detection. TODO: Make configurable
+int envelope_window_sizes[SENSITIVITY_LEVELS] = {18, 16, 14, 12, 8, 6, 5, 4, 3, 2}; // Larger window size = more smoothing, less sensitivity. TODO: Make configurable
+int envelope_threshold[SENSITIVITY_LEVELS] = {300, 250, 200, 175, 150, 100, 50, 25, 10, 5}; // Threshold for bite detection. TODO: Make configurable
 
 static QueueHandle_t s_event_queue = NULL;
 
@@ -42,7 +42,7 @@ void setup_piezo_manager(QueueHandle_t sensor_event_queue)
 }
 
 static void update_envelope(int adc_sample) {
-    int envelope_window_size = envelope_window_sizes[(int)config_manager_get_sensitivity()];
+    int envelope_window_size = envelope_window_sizes[(int)get_sensitivity()];
     piezo_envelope = (piezo_envelope * (envelope_window_size - 1) + adc_sample) / envelope_window_size;
 }
 
@@ -55,7 +55,7 @@ static void vPiezoTask(void *pvParameters)
         ESP_ERROR_CHECK(adc_oneshot_read(adc_handle, ADC_PIN, &piezo_sample));
         update_envelope(piezo_sample);
 
-        uint8_t threshold = envelope_threshold[config_manager_get_sensitivity()]; // TODO: Optimize so that config manager does not have to be polled every execution
+        uint8_t threshold = envelope_threshold[get_sensitivity()]; // TODO: Optimize so that config manager does not have to be polled every execution
 
         if (piezo_envelope >= threshold + 30) {
             if (s_sw_420_event_level != EVENT_HIGH) {
@@ -80,5 +80,5 @@ static void vPiezoTask(void *pvParameters)
 }
 
 void start_piezo_task(void) {
-    xTaskCreate(vPiezoTask, "piezo", 4096, NULL, 1, NULL);
+    xTaskCreate(vPiezoTask, "piezo", 4096, NULL, 3, NULL);
 }

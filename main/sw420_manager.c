@@ -4,9 +4,8 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 
-#include "config_manager.h"
 #include "constants.h"
-
+#include "hmi_manager.h"
 #include "state_machine.h"
 
 #define SAMPLE_BUFFER_SIZE 10 // TODO: Make configurable
@@ -16,7 +15,7 @@
 #define TAG "SW420_MANAGER"
 
 static event_level_t s_sw_420_event_level = EVENT_NONE;
-int vibration_threshold[SENSITIVITY_LEVELS] = {9, 7, 5, 2, 1}; // Number of vibrations detected in buffer to consider it a positive event. TODO: Make configurable
+int vibration_threshold[SENSITIVITY_LEVELS] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1}; // Number of vibrations detected in buffer to consider it a positive event. TODO: Make configurable
 static int sw420_samples[SAMPLE_BUFFER_SIZE];
 
 static QueueHandle_t s_event_queue = NULL;
@@ -30,7 +29,7 @@ void setup_sw420_manager(QueueHandle_t sensor_event_queue)
     }
 
     gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << SW420_PIN),    // Select GPIO 4
+        .pin_bit_mask = (1ULL << SW420_PIN),    // Select GPIO 14
         .mode = GPIO_MODE_INPUT,                // Set as input
         .pull_up_en = GPIO_PULLUP_ENABLE,       // Enable internal pull-up
         .pull_down_en = GPIO_PULLDOWN_DISABLE,  // Disable pull-down
@@ -57,7 +56,7 @@ static void xSW420Task(void *pvParameters)
 
         sample_index = (sample_index + 1) % SAMPLE_BUFFER_SIZE;
 
-        uint8_t threshold = vibration_threshold[config_manager_get_sensitivity()];  // TODO: Optimize so that config manager does not have to be polled every execution
+        uint8_t threshold = vibration_threshold[get_sensitivity()];  // TODO: Optimize so that config manager does not have to be polled every execution
 
         if (high_count >= threshold + 2) {
             if (s_sw_420_event_level != EVENT_HIGH) {
@@ -83,5 +82,5 @@ static void xSW420Task(void *pvParameters)
 
 void start_sw420_task(void)
 {
-    xTaskCreate(xSW420Task, "SW420 Task", 4096, NULL, 1, NULL);
+    xTaskCreate(xSW420Task, "SW420 Task", 4096, NULL, 3, NULL);
 }

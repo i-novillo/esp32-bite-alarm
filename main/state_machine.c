@@ -150,5 +150,5 @@ static void xTaskStateMachine(void *pvParameters)
 
 void start_state_machine_task()
 {
-    xTaskCreate(xTaskStateMachine, "State Machine Task", 4096, NULL, 1, NULL);
+    xTaskCreate(xTaskStateMachine, "State Machine Task", 4096, NULL, 2, NULL);
 }
