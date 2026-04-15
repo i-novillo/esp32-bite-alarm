@@ -3,7 +3,6 @@
 
 #define SENSITIVITY_LEVELS 10
 
-//TODO: Add comments
 typedef enum {
     SENS_LEVEL_1 = 0,
     SENS_LEVEL_2 = 1,
@@ -17,10 +16,20 @@ typedef enum {
     SENS_LEVEL_10 = 9
 } sensitivity_level_t;
 
+/**
+ * @brief Sets up the HMI manager to handle physical user inputs.
+ */
 void setup_hmi_manager(void);
 
+/**
+ * @brief Starts the HMI manager task.
+ */
 void start_hmi_manager_task(void);
 
+/**
+ * @brief Getter for the sensitivity level configured from user input (to be used by bite detection modules).
+ * @return Current sensitivity level
+ */
 sensitivity_level_t get_sensitivity(void);
 
 #endif // HMI_MANAGER_H
