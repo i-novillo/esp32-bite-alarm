@@ -138,7 +138,7 @@ static void xHMIManagerTask(void *pvParameters)
     }
 }
 
-void start_hmi_manager_task(void)
+void start_hmi_task(void)
 {
     gpio_install_isr_service(0);
     gpio_isr_handler_add(KY_040_CLK_PIN, sensitivity_input_handler, NULL);

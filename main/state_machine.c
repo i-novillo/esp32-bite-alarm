@@ -1,4 +1,5 @@
 #include "state_machine.h"
+#include "buzzer_manager.h"
 
 #include <stdio.h>
 #include "esp_log.h"
@@ -53,6 +54,7 @@ static void process_sensor_event(sensor_event_type_t event)
             current_state = STATE_POSSIBLE_BITE;
             queue_timeout = pdMS_TO_TICKS(STATE_POSSIBLE_QUEUE_TIMEOUT_MS);
             bite_score = 0;
+            buzzer_set_state(BUZZER_ON_POSSIBLE_BITE);
             break;
 
         case STATE_POSSIBLE_BITE:
@@ -67,7 +69,7 @@ static void process_sensor_event(sensor_event_type_t event)
             current_state = STATE_ALARMING;
             queue_timeout = pdMS_TO_TICKS(STATE_ALARMING_QUEUE_TIMEOUT_MS);
             alarm_active = true;
-            // TODO: SEND START ALARM TO BUZZER
+            buzzer_set_state(BUZZER_ON_ALARM);
             break;
 
         case STATE_ALARMING:
@@ -107,7 +109,7 @@ static void process_sensor_event_timeout()
             current_state = STATE_ALARMING;
             queue_timeout = pdMS_TO_TICKS(STATE_ALARMING_QUEUE_TIMEOUT_MS);
             alarm_active = true;
-            // TODO: SEND START ALARM TO BUZZER
+            buzzer_set_state(BUZZER_ON_ALARM);
             break;
 
         case STATE_ALARMING:
@@ -115,6 +117,7 @@ static void process_sensor_event_timeout()
             if (bite_score < END_ALARMING_SCORE_THRESHOLD) {
                 current_state = STATE_POSSIBLE_BITE;
                 queue_timeout = pdMS_TO_TICKS(STATE_POSSIBLE_QUEUE_TIMEOUT_MS);
+                buzzer_set_state(BUZZER_OFF);
             }
             break;
             
