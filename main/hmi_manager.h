@@ -24,7 +24,7 @@ void setup_hmi_manager(void);
 /**
  * @brief Starts the HMI manager task.
  */
-void start_hmi_manager_task(void);
+void start_hmi_task(void);
 
 /**
  * @brief Getter for the sensitivity level configured from user input (to be used by bite detection modules).
