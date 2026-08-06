@@ -8,9 +8,9 @@
 
 #define TAG "HMI_MANAGER"
 
-#define KY_040_CLK_PIN GPIO_NUM_33
-#define KY_040_DT_PIN GPIO_NUM_32
-#define KY_040_BUTTON_PIN GPIO_NUM_25
+#define KY_040_CLK_PIN 10
+#define KY_040_DT_PIN 20
+#define KY_040_BUTTON_PIN 21
 
 #define SENSITIVITY_QUEUE_SIZE 20 // TODO: Make configurable
 #define SENSITIVITY_QUEUE_TIMEOUT 1000 // TODO: Make configurable

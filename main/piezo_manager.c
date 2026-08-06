@@ -7,7 +7,7 @@
 #include "constants.h"
 #include "state_machine.h"
 
-#define ADC_PIN       ADC_CHANNEL_6     // Channel 6 - Check ESP32 Pinout for the GPIO Number // TODO: Make configurable
+#define ADC_PIN       ADC_CHANNEL_1     // Channel 6 - Check ESP32 Pinout for the GPIO Number // TODO: Make configurable
 #define ADC_UNIT      ADC_UNIT_1        // ADC1
 #define ADC_BITWIDTH  ADC_BITWIDTH_12   // 12-bit resolution (0-4095)
 #define ADC_ATTEN     ADC_ATTEN_DB_12   // ~3.3V full-scale voltage
@@ -30,7 +30,7 @@ void setup_piezo_manager(QueueHandle_t sensor_event_queue)
     s_event_queue = sensor_event_queue;
     adc_oneshot_unit_init_cfg_t init_config = {
         .unit_id = ADC_UNIT,
-        .clk_src = ADC_RTC_CLK_SRC_DEFAULT,
+        .clk_src = ADC_DIGI_CLK_SRC_DEFAULT,
     };
     ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config, &adc_handle));
 

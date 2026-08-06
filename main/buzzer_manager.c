@@ -5,7 +5,7 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 
-#define BUZZER_PIN GPIO_NUM_27 // TODO: Make configurable
+#define BUZZER_PIN 4 // TODO: Make configurable
 #define PWM_DUTY 512 // TODO: Make configurable
 
 #define STATE_MACHINE_NOTIFICATION_TIMEOUT   50     // TODO: Make configurable
@@ -21,7 +21,7 @@ void setup_buzzer_manager(void)
 {
     // Configure PWM timer
     ledc_timer_config_t timer = {
-        .speed_mode       = LEDC_HIGH_SPEED_MODE,
+        .speed_mode       = LEDC_LOW_SPEED_MODE,
         .timer_num        = LEDC_TIMER_0,
         .duty_resolution  = LEDC_TIMER_10_BIT,
         .freq_hz          = BUZZER_ON_POSSIBLE_BITE_FREQ,
@@ -32,7 +32,7 @@ void setup_buzzer_manager(void)
     // Configure PWM channel
     ledc_channel_config_t channel = {
         .gpio_num   = BUZZER_PIN,
-        .speed_mode = LEDC_HIGH_SPEED_MODE,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
         .channel    = LEDC_CHANNEL_0,
         .timer_sel  = LEDC_TIMER_0,
         .duty       = PWM_DUTY,
@@ -43,15 +43,15 @@ void setup_buzzer_manager(void)
 
 static void buzzer_on(uint32_t freq_hz)
 {
-    ledc_set_freq(LEDC_HIGH_SPEED_MODE, LEDC_TIMER_0, freq_hz);
-    ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, PWM_DUTY);
-    ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0);
+    ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, freq_hz);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, PWM_DUTY);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
 static void buzzer_off(void)
 {
-    ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 0);
-    ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
 }
 
 static void xTaskBuzzerManager(void *pvParameters)
